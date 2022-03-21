@@ -1,0 +1,33 @@
+digraph Tree {
+node [shape=box, fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label="OverallQual <= 7.5\nsquared_error = 6487166846.818\nsamples = 1021\nvalue = 180463.839"] ;
+1 [label="OverallQual <= 6.5\nsquared_error = 2477446603.819\nsamples = 857\nvalue = 156981.704"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="OverallQual <= 5.5\nsquared_error = 1407802368.385\nsamples = 639\nvalue = 139630.637"] ;
+1 -> 2 ;
+3 [label="(...)"] ;
+2 -> 3 ;
+4 [label="(...)"] ;
+2 -> 4 ;
+5 [label="LotArea <= 9637.5\nsquared_error = 2143646133.555\nsamples = 218\nvalue = 207841.023"] ;
+1 -> 5 ;
+6 [label="(...)"] ;
+5 -> 6 ;
+7 [label="(...)"] ;
+5 -> 7 ;
+8 [label="OverallQual <= 8.5\nsquared_error = 9501572436.656\nsamples = 164\nvalue = 303172.317"] ;
+0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+9 [label="LotArea <= 10042.0\nsquared_error = 3419422933.773\nsamples = 121\nvalue = 267991.38"] ;
+8 -> 9 ;
+10 [label="(...)"] ;
+9 -> 10 ;
+11 [label="(...)"] ;
+9 -> 11 ;
+12 [label="TotRmsAbvGrd <= 9.5\nsquared_error = 13333123744.043\nsamples = 43\nvalue = 402169.837"] ;
+8 -> 12 ;
+13 [label="(...)"] ;
+12 -> 13 ;
+14 [label="(...)"] ;
+12 -> 14 ;
+}
