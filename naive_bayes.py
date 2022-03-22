@@ -13,6 +13,9 @@ from sklearn.pipeline import make_pipeline
 from reader import Reader
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import cross_validate
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import KFold
+from sklearn import datasets, metrics
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error,r2_score
 from scipy.stats import normaltest
@@ -232,10 +235,30 @@ class main(object):
 
         print('Confusion matrix for Naive Bayes\n',cm)
         print('Accuracy: ',accuracy)
-
+    
+    def crossValidation(self):
+        #X_train, X_test,y_train, y_test, X, y = self.train_test()
+        df = self.groupBy_ResponseVar()
+        y = df.pop('SaleRange')
+        X = df[['LotArea','OverallQual', 'TotRmsAbvGrd', 'GarageCars', 'FullBath']]
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
+        kf = KFold(n_splits=5)
+        clf = LogisticRegression(solver='lbfgs', max_iter=1000)
+        clf.fit(X_train, y_train)
+        score = clf.score(X_train,y_train)
+    
+        print("Metrica del modelo", score)
+        scores = cross_val_score(clf, X_train, y_train, cv=kf, scoring="accuracy")
+        
+        print("Metricas cross_validation", scores)
+        print("Media de cross_validation", scores.mean())
+        
+        preds = clf.predict(X_test)
+        score_pred = metrics.accuracy_score(y_test, preds)
+        print("Metrica en Test", score_pred)
 
 driver = main('train.csv')
 
-
-print(driver.naive_bayes())
+driver.crossValidation()
+#print(driver.naive_bayes())
     
