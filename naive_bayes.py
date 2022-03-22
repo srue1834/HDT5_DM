@@ -19,6 +19,11 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error,r2_score
 from scipy.stats import normaltest
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.naive_bayes import GaussianNB
+from sklearn.metrics import confusion_matrix
+from sklearn.metrics import accuracy_score ,precision_score,recall_score,f1_score
+
+from sklearn.preprocessing import StandardScaler
 
 
 class main(object):
@@ -67,12 +72,17 @@ class main(object):
 
         column_names = ['LotArea','OverallQual', 'TotRmsAbvGrd', 'GarageCars', 'FullBath']
 
+
+
         X = df.loc[:, column_names]
         y = df[['SalePrice']]
 
         random.seed(123)
 
         X_train, X_test,y_train, y_test = train_test_split(X, y,test_size=0.3,train_size=0.7)
+
+        
+        
 
         return X_train, X_test,y_train, y_test, X, y
 
@@ -220,11 +230,31 @@ class main(object):
         #self.residualBox(residuales)
         #self.residualNormal(residuales)
 
+    def naive_bayes(self):
+        X_train, X_test,y_train, y_test, X, y = self.trainTest()
+
+        
+        sc = StandardScaler()
+        X_train = sc.fit_transform(X_train)
+        X_test = sc.transform(X_test)
+
+        classifier = GaussianNB()
+        classifier.fit(X_train, y_train)
+
+        y_pred  =  classifier.predict(X_test)
+
+        cm = confusion_matrix(y_test, y_pred)
+        ac = accuracy_score(y_test, y_pred)
+
+        print(cm)
+        print(ac)
+
+
         
 
 
 driver = main('train.csv')
 
 
-print(driver.linear_regression())
+print(driver.naive_bayes())
     
