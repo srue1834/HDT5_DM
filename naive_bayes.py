@@ -1,15 +1,13 @@
 from locale import normalize
-import random
+
 import seaborn as sns
 from matplotlib import pyplot as plt
 import pandas as pd
-import numpy as np
 from sklearn import tree
 from sklearn import metrics
 import statsmodels.api as sm
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
-from sklearn import cluster 
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.pipeline import make_pipeline
 from reader import Reader
@@ -23,7 +21,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import accuracy_score ,precision_score,recall_score,f1_score
 
-from sklearn.preprocessing import StandardScaler
+pd.options.mode.chained_assignment = None  # default='warn'
 
 
 class main(object):
@@ -33,13 +31,6 @@ class main(object):
         # Classes
         R = Reader(csvFilePath)
         self.df = R.data
-    
-    def shape(self):
-        df = self.df
-
-        print(df.shape)
-        print(df.head())
-        print(df.isnull().sum())
 
     def percentile(self):
         x = self.df['SalePrice']
@@ -47,55 +38,55 @@ class main(object):
         self.firstRange, self.secondRange = threshold.iloc[0], threshold.iloc[1]
 
         return self.firstRange, self.secondRange
-    
+
+    def data_classification(self):
+        df = self.df
+
+        column_names = ['SalePrice','LotArea','OverallQual', 'TotRmsAbvGrd', 'GarageCars', 'FullBath']
+        df = df[column_names]
+       
+        df.dropna(subset=column_names, inplace=True)
+
+        return df
+        
     def groupBy_ResponseVar(self):
 
         fR, sR = self.percentile()
-        df = self.df.copy()
+        df = self.data_classification()
 
         df['SaleRange'] = df['SalePrice'].apply(
             lambda x: 'Low' if x <= fR 
             else ('Medium' if (x > fR and x <= sR) else 'High'))
         df_balance = df.copy()
-        df = df.groupby('SaleRange').size()
+
+        # df = df.groupby('SaleRange').size()
 
         df_balance['SaleRange'] = df_balance['SaleRange'].astype('category')
-        print(df_balance)
-
-        
-        print("\n df")
-        print(df.head)
+       
         return df
-        
-    def trainTest(self):
-        df = self.df
 
-        column_names = ['LotArea','OverallQual', 'TotRmsAbvGrd', 'GarageCars', 'FullBath']
-
-
-
-        X = df.loc[:, column_names]
-        y = df[['SalePrice']]
-
-        random.seed(123)
-
-        X_train, X_test,y_train, y_test = train_test_split(X, y,test_size=0.3,train_size=0.7)
+    def train_test(self):
+        df = self.groupBy_ResponseVar()
+        y = df.pop('SaleRange')
+        X = df[['LotArea','OverallQual', 'TotRmsAbvGrd', 'GarageCars', 'FullBath']]
 
         
-        
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, train_size=0.7)
 
-        return X_train, X_test,y_train, y_test, X, y
+        return  X_train, X_test, y_train, y_test, X, y
+
 
     def normalizeData(self):
-        X_train, X_test,y_train, y_test, X, y = self.trainTest()
+        X_train, X_test,y_train, y_test, X, y = self.train_test()
         
         model = make_pipeline(StandardScaler(), LogisticRegression())
         cv_result = cross_validate(model,X_train, y_train, cv=5 )
         return cv_result
 
+
     def treeDepth(self):
         
-        X_train, X_test,y_train, y_test, X, y = self.trainTest()
+        X_train, X_test,y_train, y_test, X, y = self.train_test()
 
         train_accuracy = []
         test_accuracy = []
@@ -117,14 +108,14 @@ class main(object):
 
     def decision_tree(self):
         # CAMBIOOOOO2
-        X_train, X_test,y_train, y_test, X, y = self.trainTest()
+        X_train, X_test,y_train, y_test, X, y = self.train_test()
        
 
         dt = tree.DecisionTreeClassifier(max_depth=3, random_state=10)
         dt.fit(X_train, y_train)
 
-        feature_names = X.columns
-        tree.export_graphviz(dt, out_file='tree.dot', feature_names=feature_names, class_names=True, max_depth=2)
+        column_names = ['LotArea','OverallQual', 'TotRmsAbvGrd', 'GarageCars', 'FullBath']
+        tree.export_graphviz(dt, out_file='tree.dot', feature_names=column_names, class_names=True, max_depth=2)
         
 
         y_pred = dt.predict(X_test)
@@ -138,18 +129,18 @@ class main(object):
     
     def regression_tree(self):
         
-        X_train, X_test,y_train, y_test, X, y = self.trainTest()
+        X_train, X_test,y_train, y_test, X, y = self.train_test()
        
 
         rt = tree.DecisionTreeRegressor(max_depth=3, random_state=10)
         rt.fit(X_train, y_train)
 
-        feature_names = X.columns
-        tree.export_graphviz(rt, out_file='regression_tree.dot', feature_names=feature_names, class_names=True, max_depth=2)
+        column_names = ['LotArea','OverallQual', 'TotRmsAbvGrd', 'GarageCars', 'FullBath']
+        tree.export_graphviz(rt, out_file='regression_tree.dot', feature_names=column_names, class_names=True, max_depth=2)
 
     def random_forest(self):
         #CAMBIOOO2
-        X_train, X_test,y_train, y_test, X, y = self.trainTest()
+        X_train, X_test,y_train, y_test, X, y = self.train_test()
        
         rf = RandomForestClassifier(max_depth=3, random_state=10)
         rf.fit(X_train, y_train)
@@ -162,7 +153,7 @@ class main(object):
 
     # CAMBIOOOOOOO
     def linear_regression(self):
-        X_train, X_test,y_train, y_test, X, y = self.trainTest()
+        X_train, X_test,y_train, y_test, X, y = self.train_test()
         y_tr = y_train.values.reshape(-1, 1)
         y_t = y_test.values.reshape(-1, 1)
 
@@ -193,10 +184,8 @@ class main(object):
         plt.title("Conjunto de entrenamiento OverallQual vs SalePrice")
         plt.show()
 
-        # return y_tr, y_t, x_tr, x_t, y_pred
-
     def multicollinearity(self):
-        X_train, X_test,y_train, y_test, X, y = self.trainTest()
+        X_train, X_test,y_train, y_test, X, y = self.train_test()
         
         vif_data = pd.DataFrame()
         vif_data['feature'] = X.columns
@@ -231,12 +220,7 @@ class main(object):
         #self.residualNormal(residuales)
 
     def naive_bayes(self):
-        X_train, X_test,y_train, y_test, X, y = self.trainTest()
-
-        
-        sc = StandardScaler()
-        X_train = sc.fit_transform(X_train)
-        X_test = sc.transform(X_test)
+        X_train, X_test,y_train, y_test, X, y = self.train_test()
 
         classifier = GaussianNB()
         classifier.fit(X_train, y_train)
@@ -244,13 +228,10 @@ class main(object):
         y_pred  =  classifier.predict(X_test)
 
         cm = confusion_matrix(y_test, y_pred)
-        ac = accuracy_score(y_test, y_pred)
+        accuracy=accuracy_score(y_test,y_pred)
 
-        print(cm)
-        print(ac)
-
-
-        
+        print('Confusion matrix for Naive Bayes\n',cm)
+        print('Accuracy: ',accuracy)
 
 
 driver = main('train.csv')
