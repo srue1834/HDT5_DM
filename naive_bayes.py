@@ -70,11 +70,12 @@ class main(object):
 
     def train_test(self):
         df = self.groupBy_ResponseVar()
+        df = df.fillna(0)
         y = df.pop('SaleRange')
         X = df[['LotArea','OverallQual', 'TotRmsAbvGrd', 'GarageCars', 'FullBath']]
 
         
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, train_size=0.7)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, train_size=0.7,  random_state=42)
 
         return  X_train, X_test, y_train, y_test, X, y
 
@@ -122,11 +123,11 @@ class main(object):
         
 
         y_pred = dt.predict(X_test)
-        print ("Accuracy:",metrics.accuracy_score(y_test, y_pred))
-        print ("Precision:", metrics.precision_score(y_test,y_pred,average="weighted", zero_division=1) )
-        print ("Recall: ", metrics.recall_score(y_test,y_pred,average="weighted", zero_division=1))
+        # print ("Accuracy:",metrics.accuracy_score(y_test, y_pred))
+        # print ("Precision:", metrics.precision_score(y_test,y_pred,average="weighted", zero_division=1) )
+        # print ("Recall: ", metrics.recall_score(y_test,y_pred,average="weighted", zero_division=1))
 
-
+        print("The decision tree score is ", dt.score(X_train, y_train))
         # para correrlo tiene que descargar graphviz
         # despues -> dot -Tpng tree.dot -o tree.png
     
@@ -226,12 +227,17 @@ class main(object):
         X_train, X_test,y_train, y_test, X, y = self.train_test()
 
         classifier = GaussianNB()
-        classifier.fit(X_train, y_train)
+        # classifier.fit(X_train, y_train)
+        classifier.fit(X_test, y_test)
 
-        y_pred  =  classifier.predict(X_test)
+        # y_pred  =  classifier.predict(X_test)
+        y_pred  =  classifier.predict(X_train)
 
-        cm = confusion_matrix(y_test, y_pred)
-        accuracy=accuracy_score(y_test,y_pred)
+        # cm = confusion_matrix(y_test, y_pred)
+        # accuracy=accuracy_score(y_test,y_pred)
+
+        cm = confusion_matrix(y_train, y_pred)
+        accuracy=accuracy_score(y_train,y_pred)
 
         print('Confusion matrix for Naive Bayes\n',cm)
         print('Accuracy: ',accuracy)
@@ -257,8 +263,26 @@ class main(object):
         score_pred = metrics.accuracy_score(y_test, preds)
         print("Metrica en Test", score_pred)
 
+    def pair_plot_model(self):
+        df = self.groupBy_ResponseVar()
+        sns.pairplot(df, hue="SaleRange")
+        # g.fig.set_size_inches(10, 5)
+        plt.show()
+
+    def corr_model(self):
+        df = self.groupBy_ResponseVar()
+        SaleRange = df.pop("SaleRange")
+        
+        print(df.corr())
+
+    def heat_map(self):
+        df = self.groupBy_ResponseVar()
+        # plt.subplot(figsize = (8,8))
+        sns.heatmap(df.corr(), annot=True,fmt="f").set_title("Correlación de las variables numéricas de precios de casas") 
+        plt.show()
+
 driver = main('train.csv')
 
-driver.crossValidation()
+driver.heat_map()
 #print(driver.naive_bayes())
     

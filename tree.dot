@@ -1,0 +1,33 @@
+digraph Tree {
+node [shape=box, fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label="OverallQual <= 6.5\ngini = 0.666\nsamples = 1021\nvalue = [341, 328, 352]\nclass = y[2]"] ;
+1 [label="GarageCars <= 1.5\ngini = 0.569\nsamples = 629\nvalue = [54, 321, 254]\nclass = y[1]"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="LotArea <= 9196.0\ngini = 0.35\nsamples = 281\nvalue = [4, 219, 58]\nclass = y[1]"] ;
+1 -> 2 ;
+3 [label="(...)"] ;
+2 -> 3 ;
+4 [label="(...)"] ;
+2 -> 4 ;
+5 [label="OverallQual <= 5.5\ngini = 0.576\nsamples = 348\nvalue = [50, 102, 196]\nclass = y[2]"] ;
+1 -> 5 ;
+6 [label="(...)"] ;
+5 -> 6 ;
+7 [label="(...)"] ;
+5 -> 7 ;
+8 [label="LotArea <= 9606.0\ngini = 0.401\nsamples = 392\nvalue = [287, 7, 98]\nclass = y[0]"] ;
+0 -> 8 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+9 [label="OverallQual <= 7.5\ngini = 0.53\nsamples = 153\nvalue = [77, 5, 71]\nclass = y[0]"] ;
+8 -> 9 ;
+10 [label="(...)"] ;
+9 -> 10 ;
+11 [label="(...)"] ;
+9 -> 11 ;
+12 [label="GarageCars <= 2.5\ngini = 0.215\nsamples = 239\nvalue = [210, 2, 27]\nclass = y[0]"] ;
+8 -> 12 ;
+13 [label="(...)"] ;
+12 -> 13 ;
+14 [label="(...)"] ;
+12 -> 14 ;
+}
